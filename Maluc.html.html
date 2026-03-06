@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>LỄ PHÁT ĐỘNG KINH DOANH 2026 - CENTRAL 7</title>
+
+<style>
+
+body{
+margin:0;
+font-family:sans-serif;
+text-align:center;
+background:url("background.jpg");
+background-size:cover;
+color:white;
+}
+
+h1{
+margin-top:40px;
+font-size:48px;
+letter-spacing:3px;
+}
+
+#horse{
+font-size:150px;
+margin-top:40px;
+transition:transform 0.15s;
+}
+
+button{
+margin-top:40px;
+padding:20px 50px;
+font-size:28px;
+border:none;
+border-radius:50px;
+background:gold;
+cursor:pointer;
+}
+
+#bar{
+width:70%;
+height:35px;
+background:#5a0000;
+border-radius:20px;
+margin:40px auto;
+overflow:hidden;
+}
+
+#progress{
+width:0%;
+height:100%;
+background:linear-gradient(90deg,gold,orange);
+}
+
+#percent{
+font-size:40px;
+}
+
+canvas{
+position:fixed;
+top:0;
+left:0;
+pointer-events:none;
+}
+
+</style>
+</head>
+
+<body>
+
+<h1>MỘT TINH THẦN - MỘT SỨC MẠNH</h1>
+
+<div id="horse">🐎</div>
+
+<div id="bar">
+<div id="progress"></div>
+</div>
+
+<div id="percent">0%</div>
+
+<button id="tap">TIẾP MÃ LỰC</button>
+
+<canvas id="fire"></canvas>
+
+<audio id="bgMusic" src="music.mp3" loop></audio>
+<audio id="horseSound" src="gallop.mp3"></audio>
+
+<script type="module">
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js"
+import { getDatabase, ref, onValue, update, increment } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js"
+
+const firebaseConfig = {
+apiKey:"AIzaSyASirIyjDPTFs1t8XVMCvhwk89Rkg0ihjY",
+authDomain:"maluc-central-7-2026.firebaseapp.com",
+databaseURL:"https://maluc-central-7-2026-default-rtdb.asia-southeast1.firebasedatabase.app",
+projectId:"maluc-central-7-2026",
+storageBucket:"maluc-central-7-2026.appspot.com",
+messagingSenderId:"1066110538599",
+appId:"1:1066110538599:web:1b9f3fbe290a18c856d5c2"
+}
+
+const app = initializeApp(firebaseConfig)
+const db = getDatabase(app)
+
+const powerRef = ref(db,"power")
+
+const button=document.getElementById("tap")
+const progress=document.getElementById("progress")
+const percent=document.getElementById("percent")
+const horse=document.getElementById("horse")
+
+const bgMusic=document.getElementById("bgMusic")
+const horseSound=document.getElementById("horseSound")
+
+let maxPower=300
+
+button.onclick=()=>{
+
+bgMusic.play()
+
+horseSound.currentTime=0
+horseSound.play()
+
+horse.style.transform="scale(1.2)"
+
+setTimeout(()=>{
+horse.style.transform="scale(1)"
+},120)
+
+update(powerRef,{
+value:increment(1)
+})
+
+}
+
+onValue(powerRef,(snap)=>{
+
+let value=snap.val()?.value || 0
+
+let percentValue=Math.min((value/maxPower)*100,100)
+
+progress.style.width=percentValue+"%"
+percent.innerText=Math.floor(percentValue)+"%"
+
+if(percentValue>=100){
+fireworks()
+}
+
+})
+
+function fireworks(){
+
+const canvas=document.getElementById("fire")
+const ctx=canvas.getContext("2d")
+
+canvas.width=window.innerWidth
+canvas.height=window.innerHeight
+
+let particles=[]
+
+for(let i=0;i<200;i++){
+
+particles.push({
+x:canvas.width/2,
+y:canvas.height/2,
+vx:(Math.random()-0.5)*10,
+vy:(Math.random()-0.5)*10,
+life:100
+})
+
+}
+
+function animate(){
+
+ctx.clearRect(0,0,canvas.width,canvas.height)
+
+particles.forEach(p=>{
+
+p.x+=p.vx
+p.y+=p.vy
+p.life--
+
+ctx.fillStyle="gold"
+ctx.fillRect(p.x,p.y,5,5)
+
+})
+
+particles=particles.filter(p=>p.life>0)
+
+if(particles.length>0){
+requestAnimationFrame(animate)
+}
+
+}
+
+animate()
+
+}
+
+</script>
+
+</body>
+</html>
